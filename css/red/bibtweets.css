@@ -1,0 +1,163 @@
+@charset "utf-8";
+
+/*Copyright (C) 2009 India Fascinates (Suhas), Rajesh (BestIndianBloggers Dot Com)
+ *  Copyright (C) 2009 Mauro Rocco "fireantology@gmail.com"
+ *
+ *  This file is part of Wordpress Twitter plugin.
+ *
+ *  Wordpress Twitter is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Wordpress Twitter is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Wordpress Twitter.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#BiB_red{
+display: block;
+font-size: 11px;
+font-family: Verdana, Helvetica, sans-serif;
+color: #7f7f7f;
+}
+
+#BiB_red a{
+color: #bf1414;
+text-decoration: none;
+}
+
+#BiB_red a:visited{
+color: #bf1414;
+text-decoration: none;
+}
+
+#BiB_red a:hover{
+color: #bf1414;
+text-decoration: underline;
+}
+
+#BiB_red #content_BiB{
+border-left: 1px solid #c9c9c9;
+border-right: 1px solid #c9c9c9;
+display: block;
+clear: both;
+background-color: #f0f0f0;
+text-align: center;
+}
+
+
+#BiB_red  #top_BiB{
+height: 36px;
+padding-left: 50px;
+padding-right: 18px;
+clear: both;
+display: block;
+}
+
+#BiB_red  #top_BiB #left_BiB{
+position: relative;
+float: left; display:block; width: 50px; height: 36px;
+left: -50px;
+}
+
+#BiB_red  #top_BiB #right_BiB{
+position: relative;
+float: right; display:block; width: 18px; height: 36px;
+left: 18px;
+}
+
+#BiB_red  #top_BiB #center_BiB{
+width: 100%;
+height: 36px;
+background-image: url(images/background_top.png);
+background-repeat: repeat-x;
+position: relative;
+}
+
+#BiB_red  #top_BiB #center_BiB #text_BiB{
+margin: 0px;
+padding: 0px;
+padding-top: 10px;
+position: relative;
+left: -30px;
+float: left;
+}
+
+
+#BiB_red  #bottom_BiB{
+height: 36px;
+padding-left: 18px;
+padding-right: 18px;
+clear: both;
+display: block;
+}
+
+#BiB_red  #bottom_BiB #left_BiB{
+position: relative;
+float: left; display:block; width: 18px;
+left: -18px; height: 18px;
+}
+
+#BiB_red  #bottom_BiB #center_BiB{
+width: 100%;
+height: 18px;
+background-image: url(images/background_bottom.png);
+background-repeat: repeat-x;
+position: relative;
+}
+
+#BiB_red  #bottom_BiB #right_BiB{
+position: relative;
+float: right; display:block; width: 18px;
+left: 18px; height: 18px;
+}
+
+#BiB_red #content_BiB .BiBOverFlow{
+width: 95%;
+display: block;
+clear: both;
+background-color: #f0f0f0;
+overflow: auto;
+margin: 0 auto;
+}
+
+#BiB_red #content_BiB #item_BiB{
+border: 1px solid #c9c9c9;
+background-image: url(images/background_row.png);
+background-repeat: repeat-x;
+background-color: #eeeeee;
+display:block;
+width: 97%;
+margin-bottom: 5px;
+text-align: left;
+}
+
+#BiB_red #content_BiB #item_BiB  img{
+border: 1px solid #c9c9c9;
+float: left;
+margin-right: 8px;
+}
+
+#BiB_red #content_BiB #item_BiB #text_BiB{
+text-align: left;
+display: block;
+padding: 8px;
+width: 95%;
+overflow: hidden;
+}
+
+#BiB_red #content_BiB #date_BiB{
+font-size: 11px;
+padding-top: 5px;
+display: block;
+float: left;
+}
+
+#BiB_red #content #LoadingImage_BiB{
+margin-top: 100px;
+}
