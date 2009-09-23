@@ -44,3 +44,11 @@ Please read these **[FAQs](http://indiafascinates.com/wordpress/wordpress-twitte
 2. Twitter widget on a wordpress blog
 3. Twitter Keyword Widget on a wordpress blog (blue theme)
 4. Twitter Keyword Widget on a wordpress blog (Green theme)
+
+== Credits ==
+[Mauro Rocco] [http://ptwix.toforge.com/] - The plugin is based on his Ptwix, thanks to him.
+
+== Changelog ==
+
+= 1.1 =
+* A minor change since the previous version.
