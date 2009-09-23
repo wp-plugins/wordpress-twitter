@@ -3,7 +3,7 @@
 Plugin Name: Wordpress Twitter
 Plugin URI: http://indiafascinates.com/wordpress/wordpress-twitter-plugin/
 Description:  A wonderful tweets widget to show your timeline, friends' timeline or tweets on any keywords
-Version: 1.1
+Version: 1.2
 Author: India Fascinates (Suhas), Rajesh (BestIndianBloggers Dot Com)
 Author URI: http://indiafascinates.com/
 */
@@ -43,7 +43,7 @@ class bibtweets{
     private $height = 265;
     private $bib_time_interval=60;
 	
-    public $version = "1.1";
+    public $version = "1.2";
     public static $USER_TIMELINE = "user";
     public static $FRIENDS_TIMELINE = "friends";
 	public static $SEARCH = "search";
@@ -87,7 +87,7 @@ class bibtweets{
      */
 
     public function printCssRef(){
-        echo '<link href="'.WP_PLUGIN_URL.'/bibtweets/css/'.$this->theme.'/bibtweets.css" rel="stylesheet" type="text/css" />';
+        echo '<link href="'.WP_PLUGIN_URL.'/wordpress_twitter/css/'.$this->theme.'/bibtweets.css" rel="stylesheet" type="text/css" />';
     }
 
     private function parseText($text){
@@ -149,7 +149,7 @@ class bibtweets{
 	public function init() {
 		if (function_exists('load_plugin_textdomain')) {
 		
-			load_plugin_textdomain('bibtweets', WP_PLUGIN_DIR . '/bibtweets');
+			load_plugin_textdomain('bibtweets', WP_PLUGIN_DIR . '/wordpress_twitter');
 			
 		}
 	}
@@ -161,7 +161,7 @@ class bibtweets{
 	
 	public function echo_to_blog_header() {
 		
-		echo '<link href="'.WP_PLUGIN_DIR.'/bibtweets/css/'.$this->theme.'/bibtweets.css" rel="stylesheet" type="text/css" />';
+		echo '<link href="'.WP_PLUGIN_DIR.'/wordpress_twitter/css/'.$this->theme.'/bibtweets.css" rel="stylesheet" type="text/css" />';
 	}
 
     /**
@@ -172,25 +172,25 @@ class bibtweets{
         echo "<div id=\"BiB_".$this->theme."\" style=\"width: ".$this->width."px;\">";
         echo "	<div id=\"top_BiB\">
             <div id=\"center_BiB\">
-            <div id=\"left_BiB\"><a href=\"http://indiafascinates.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/bibtweets/css/".$this->theme."/images/wpt_left.png\"></a></div>
+            <div id=\"left_BiB\"><a href=\"http://indiafascinates.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/wordpress_twitter/css/".$this->theme."/images/wpt_left.png\"></a></div>
             <div id=\"text_BiB\">
-            <a href=\"".$this->preurl_user.$this->username."\"><img align=\"absmiddle\" src=\"".WP_PLUGIN_URL."/bibtweets/css/".$this->theme."/images/followme.png\" border=\"0\"></a>&nbsp; <a href=\"".$this->preurl_user.$this->username."\">Follow me on twitter </a>&nbsp;&nbsp;
+            <a href=\"".$this->preurl_user.$this->username."\"><img align=\"absmiddle\" src=\"".WP_PLUGIN_URL."/wordpress_twitter/css/".$this->theme."/images/followme.png\" border=\"0\"></a>&nbsp; <a href=\"".$this->preurl_user.$this->username."\">Follow me on twitter </a>&nbsp;&nbsp;
             </div>
-            <div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/bibtweets/css/".$this->theme."/images/top_right.png\" border=\"0\"></div>
+            <div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/wordpress_twitter/css/".$this->theme."/images/top_right.png\" border=\"0\"></div>
             </div>
             </div>
             <div id=\"content_BiB\">
             <div id=\"".$this->instance_name."BiBOverFlow\" class=\"BiBOverFlow\" style=\"height: ".$this->height."px;\">";
         echo $this->getTweets($this->bibt_options['bib_timeline']);
         echo "</div></div><div id=\"bottom_BiB\"><div id=\"center_BiB\">
-            <div id=\"left_BiB\"><a href=\"http://bestindianbloggers.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/bibtweets/css/".$this->theme."/images/bottom_left.png\" border=\"0\"></a></div>
-            <div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/bibtweets/css/".$this->theme."/images/bottom_right.png\" border=\"0\"></div>
+            <div id=\"left_BiB\"><a href=\"http://bestindianbloggers.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/wordpress_twitter/css/".$this->theme."/images/bottom_left.png\" border=\"0\"></a></div>
+            <div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/wordpress_twitter/css/".$this->theme."/images/bottom_right.png\" border=\"0\"></div>
             </div></div><div style=\"display:block; clear: both;\"> </div>";
         echo "</div>";
     }
 
     private function readBibXml($timeline){
-        $file_date=WP_PLUGIN_DIR . '/bibtweets/cache/'.$this->instance_name."date.dat";
+        $file_date=WP_PLUGIN_DIR . '/wordpress_twitter/cache/'.$this->instance_name."date.dat";
         $fd = @fopen($file_date, 'r');
 		$bib_ti = $this->bib_time_interval;
         if(!$fd) $this->writeBibXML($timeline);
@@ -199,7 +199,7 @@ class bibtweets{
             fclose($fd);
             if(time()-$date>$bib_ti)  $this->writeBibXML($timeline);
         }
-        $cache_file=WP_PLUGIN_DIR . '/bibtweets/cache/'.$this->instance_name."cache.xml";
+        $cache_file=WP_PLUGIN_DIR . '/wordpress_twitter/cache/'.$this->instance_name."cache.xml";
         //$XML=simplexml_load_file($cache_file);
         //return $XML;
           return $cache_file;
@@ -210,22 +210,22 @@ class bibtweets{
         if($timeline!=self::$SEARCH) {
           $XML=new SimpleXMLElement($messages);
           if($XML[0]->error){
-              $file_log=fopen(WP_PLUGIN_DIR . '/bibtweets/cache/'.$this->instance_name."Error.log", "w");
+              $file_log=fopen(WP_PLUGIN_DIR . '/wordpress_twitter/cache/'.$this->instance_name."Error.log", "w");
               fwrite($file_log, date("Y-m-d H:i:s")."\n".$messages);
               fclose($file_log);
           }
           else{
-              $file=fopen(WP_PLUGIN_DIR . '/bibtweets/cache/'.$this->instance_name."cache.xml", "w");
+              $file=fopen(WP_PLUGIN_DIR . '/wordpress_twitter/cache/'.$this->instance_name."cache.xml", "w");
               fwrite($file, $messages);
               fclose($file);
           }
         }
         else {
-            $file=fopen(WP_PLUGIN_DIR . '/bibtweets/cache/'.$this->instance_name."cache.xml", "w");
+            $file=fopen(WP_PLUGIN_DIR . '/wordpress_twitter/cache/'.$this->instance_name."cache.xml", "w");
             fwrite($file, $messages);
             fclose($file);
         }
-        $file_date=fopen(WP_PLUGIN_DIR . '/bibtweets/cache/'.$this->instance_name."date.dat", "w");
+        $file_date=fopen(WP_PLUGIN_DIR . '/wordpress_twitter/cache/'.$this->instance_name."date.dat", "w");
         fwrite($file_date, time());
         fclose($file_date);
         return 1;

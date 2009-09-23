@@ -52,3 +52,6 @@ Please read these **[FAQs](http://indiafascinates.com/wordpress/wordpress-twitte
 
 = 1.1 =
 * A minor change since the previous version.
+
+= 1.2 =
+*  Change since the previous version for a directory error.
