@@ -25,8 +25,8 @@ Some features:
 
 1. Download the plguin zip file and upload it via "Plugins" --> "Add New" --> "Upload" in wordpress. Alternatively, you choose to search for the term "Wordpress Twitter" and install it directly from wordpress.
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Visit your Wordpress Twitter options (*Options - Wordpress Twitter*) for Wordpress 2.3.x, (*Settings - Wordpress Twitter*) for Wordpress 2.5.x, 2.6.x, 2.7.x, 2.8.x and configure the width, height, timeline and theme for your tweets widget.
-4. Go to Widgets and add the Wordpress Twitter widget to your sidebar.
+3. Visit your "Wordpress Twitter" settings (*Options -> Wordpress Twitter*) for Wordpress 2.3.x, (*Settings -> Wordpress Twitter*) for Wordpress 2.5.x, 2.6.x, 2.7.x, 2.8.x and configure the width, height, timeline and theme for your tweets widget.
+4. Go to Widgets and add the "Wordpress Twitter" widget to your sidebar.
 5. Alternatively, you can also directly add the following code to wherever you want to display the widget.
                <?php $bibtweets=new bibtweets();	$bibtweets->printBox(); ?>
 			   
@@ -55,3 +55,9 @@ Please read these **[FAQs](http://indiafascinates.com/wordpress/wordpress-twitte
 
 = 1.2 & 1.3 =
 *  Change since the previous version for a directory error.
+
+= 1.4 =
+*  Made compatible with older versions of PHP
+*  Added option to show or hide "Follow me on twitter" link
+*  Added option to to specify the number of tweets to be displayed
+*  Fixed other bugs

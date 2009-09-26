@@ -3,7 +3,7 @@
 Plugin Name: Wordpress Twitter
 Plugin URI: http://indiafascinates.com/wordpress/wordpress-twitter-plugin/
 Description:  A wonderful tweets widget to show your timeline, friends' timeline or tweets on any keywords
-Version: 1.3
+Version: 1.4
 Author: India Fascinates (Suhas), Rajesh (BestIndianBloggers Dot Com)
 Author URI: http://indiafascinates.com/
 */
@@ -26,34 +26,41 @@ You should have received a copy of the GNU General Public License
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
+// inits json decoder/encoder object if not already available
+if ( !class_exists( 'Services_JSON' ) ) {
+	include_once( dirname( __FILE__ ) . '/class.json.php' );
+}
 
 class bibtweets{
-    public  $tweet_statuses  = 'http://twitter.com/statuses/';
-	private $search_tweets  = 'http://search.twitter.com/search.json?';
-    private $preurl_user="http://twitter.com/";
-    private $preurl_tag="http://search.twitter.com/search?q=";
-	private $bibt_options;
-    private $instance_name;
-    private $username;
-    private $password;
-    private $theme = "blue";
-    private $timeline = "user";
-    private $string_to_search = "q=wordpress";    
-    private $width = 400;
-    private $height = 265;
-    private $bib_time_interval=60;
+    var  $tweet_statuses  = 'http://twitter.com/statuses/';
+	var $search_tweets  = 'http://search.twitter.com/search.json?';
+    var $preurl_user="http://twitter.com/";
+    var $preurl_tag="http://search.twitter.com/search?q=";
+	var $bibt_options;
+    var $instance_name;
+    var $username;
+    var $password;
+    var $theme = "blue";
+    var $timeline = "user";
+	var $numtweets = 20;
+    var $string_to_search = "q=wordpress";    
+    var $width = 400;
+    var $height = 265;
+	var $followme = 1;
+    var $bib_time_interval=60;
 	
-    public $version = "1.3";
-    public static $USER_TIMELINE = "user";
-    public static $FRIENDS_TIMELINE = "friends";
-	public static $SEARCH = "search";
+    var $version = "1.4";
+    var $USER_TIMELINE = "user";
+    var $FRIENDS_TIMELINE = "friends";
+	var $SEARCH = "search";
 	
-	public $styles = array ("red", "green", "blue");
-	public $timelines = array ("user", "friends", "search");
-	public $defaultStyle = "blue";
-	public $dflttimeline = "user";    
+	var $styles = array ("red", "green", "blue");
+	var $timelines = array ("user", "friends", "search");
+	var $defaultStyle = "blue";
+	var $dflttimeline = "user";  
+    var $dfltnumtweets = 20;	
 
-    public function  bibtweets(){
+    function  bibtweets(){
 
         global $wp_version;
 		$this->wp_version = $wp_version;
@@ -75,8 +82,10 @@ class bibtweets{
         $this->password = $this->bibt_options['bib_pwd'];
 		$this->width = $this->bibt_options['bib_width'];
         $this->height = $this->bibt_options['bib_height']; 
+		$this->followme = $this->bibt_options['bib_followme'];
         $this->bib_time_interval = $this->bibt_options['bib_time_interval'];		
         $this->theme = $this->bibt_options['bib_style']; 
+		$this->numtweets = $this->bibt_options['bib_numtweets']; 
         $this->timeline = $this->bibt_options['bib_timeline']; 
 		$this->instance_name="bibt";
 		if (stripcslashes($this->bibt_options['bib_search']) !="")
@@ -86,11 +95,11 @@ class bibtweets{
      * Print html code for css include
      */
 
-    public function printCssRef(){
+    function printCssRef(){
         echo '<link href="'.WP_PLUGIN_URL.'/wordpress-twitter/css/'.$this->theme.'/bibtweets.css" rel="stylesheet" type="text/css" />';
     }
 
-    private function parseText($text){
+    function parseText($text){
         $text.=" ";
         $text=preg_replace("/http:\/\/([^ ]+) /", "<a href=\"http://$1\" rel=\"nofollow\" target=\"_blank\">http://$1</a> ", $text);
         $text=preg_replace("/@([a-zA-z0-9_]+)/", "@<a href=\"".$this->preurl_user."$1\" rel=\"nofollow\" target=\"_blank\">$1</a> ", $text);
@@ -99,7 +108,7 @@ class bibtweets{
     }
 
 
-    private function dateFormatting($date){
+    function dateFormatting($date){
         $temp=strtotime($date);
         $date=date("d M Y H:i", $temp);
         return $date;
@@ -111,17 +120,24 @@ class bibtweets{
      * @return string post html code
      */
 
-    public function  getTweets($timeline){
+    function  getTweets($timeline){
         $messages="";
-        if($timeline==self::$SEARCH) {
-            $json_object=json_decode(file_get_contents($this-> readBibXml($timeline)));
+		$is_search = false;
+		$XML =  $this-> readBibXml($timeline);
+		if (!$XML) return false;
+        $tweetset = file_get_contents($XML);
+		if (substr($tweetset, 2, 7) == "results") $is_search = true;
+        		
+        if($is_search) {
+            $json_object=json_decode($tweetset);
             $response=$json_object->{'results'};            
         }
-        else {
-			$XML =  $this-> readBibXml($timeline);           
-			$response=simplexml_load_file($XML);            
-		} 
-        if($timeline==self::$SEARCH) {
+        else {			    
+			$json_object=json_decode($tweetset);
+            $response=$json_object;             
+		}
+		//if (empty($response)) return false;
+        if($is_search) {
 			foreach ($response as $status) {
 				$messages.= '<div id="item_BiB">';
 
@@ -146,7 +162,7 @@ class bibtweets{
         return $messages;
     }
 	
-	public function init() {
+	function init() {
 		if (function_exists('load_plugin_textdomain')) {
 		
 			load_plugin_textdomain('bibtweets', WP_PLUGIN_DIR . '/wordpress-twitter');
@@ -154,12 +170,12 @@ class bibtweets{
 		}
 	}
 	
-	public function admin_menu() {
+	function admin_menu() {
         $file = __FILE__;
         add_submenu_page('options-general.php', __('Wordpress Twitter', 'bibtweets'), __('Wordpress Twitter','bibtweets'), 10, $file, array($this, 'options_panel'));                
     }
 	
-	public function echo_to_blog_header() {
+	function echo_to_blog_header() {
 		
 		echo '<link href="'.WP_PLUGIN_DIR.'/wordpress-twitter/css/'.$this->theme.'/bibtweets.css" rel="stylesheet" type="text/css" />';
 	}
@@ -168,28 +184,34 @@ class bibtweets{
      * Print html/javascript Wordpress Twitter box
      */
 
-    public function printBox(){
-        echo "<div id=\"BiB_".$this->theme."\" style=\"width: ".$this->width."px;\">";
-        echo "	<div id=\"top_BiB\">
-            <div id=\"center_BiB\">
-            <div id=\"left_BiB\"><a href=\"http://indiafascinates.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/wpt_left.png\"></a></div>
-            <div id=\"text_BiB\">
-            <a href=\"".$this->preurl_user.$this->username."\"><img align=\"absmiddle\" src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/followme.png\" border=\"0\"></a>&nbsp; <a href=\"".$this->preurl_user.$this->username."\">Follow me on twitter </a>&nbsp;&nbsp;
-            </div>
-            <div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/top_right.png\" border=\"0\"></div>
-            </div>
-            </div>
-            <div id=\"content_BiB\">
-            <div id=\"".$this->instance_name."BiBOverFlow\" class=\"BiBOverFlow\" style=\"height: ".$this->height."px;\">";
-        echo $this->getTweets($this->bibt_options['bib_timeline']);
-        echo "</div></div><div id=\"bottom_BiB\"><div id=\"center_BiB\">
-            <div id=\"left_BiB\"><a href=\"http://bestindianbloggers.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/bottom_left.png\" border=\"0\"></a></div>
-            <div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/bottom_right.png\" border=\"0\"></div>
-            </div></div><div style=\"display:block; clear: both;\"> </div>";
-        echo "</div>";
+    function printBox(){
+	    $tweets_to_print = $this->getTweets($this->bibt_options['bib_timeline']);
+		if ($tweets_to_print != false) {
+			echo "<div id=\"BiB_".$this->theme."\" style=\"width: ".$this->width."px;\">";
+			echo "	<div id=\"top_BiB\">
+				<div id=\"center_BiB\">
+				<div id=\"left_BiB\"><a href=\"http://indiafascinates.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/wpt_left.png\"></a></div>";
+				if ($this->bibt_options['bib_followme']) {
+				echo " <div id=\"text_BiB\">
+				<a href=\"".$this->preurl_user.$this->username."\"><img align=\"absmiddle\" src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/followme.png\" border=\"0\"></a>&nbsp; <a href=\"".$this->preurl_user.$this->username."\">Follow me on twitter </a>&nbsp;&nbsp;
+				</div>";
+				}
+				echo "<div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/top_right.png\" border=\"0\"></div>
+				</div>
+				</div>
+				<div id=\"content_BiB\">
+				<div id=\"".$this->instance_name."BiBOverFlow\" class=\"BiBOverFlow\" style=\"height: ".$this->height."px;\">";
+			echo $tweets_to_print;
+			echo "</div></div><div id=\"bottom_BiB\"><div id=\"center_BiB\">
+				<div id=\"left_BiB\"><a href=\"http://bestindianbloggers.com\" target=\"_blank\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/bottom_left.png\" border=\"0\"></a></div>
+				<div id=\"right_BiB\"><img src=\"".WP_PLUGIN_URL."/wordpress-twitter/css/".$this->theme."/images/bottom_right.png\" border=\"0\"></div>
+				</div></div><div style=\"display:block; clear: both;\"> </div>";
+			echo "</div>";
+		}
     }
 
-    private function readBibXml($timeline){
+    function readBibXml($timeline){
+	    
         $file_date=WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."date.dat";
         $fd = @fopen($file_date, 'r');
 		$bib_ti = $this->bib_time_interval;
@@ -197,46 +219,35 @@ class bibtweets{
         else{
             $date = fread($fd, filesize($file_date));
             fclose($fd);
-            if(time()-$date>$bib_ti)  $this->writeBibXML($timeline);
+            if(time()-$date>$bib_ti)  {
+				$tweet_status = $this->writeBibXML($timeline);				
+				if (!$tweet_status) return false;				
+			}
         }
-        $cache_file=WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."cache.xml";
-        //$XML=simplexml_load_file($cache_file);
-        //return $XML;
-          return $cache_file;
+        $cache_file=WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."cache.xml";        
+        return $cache_file;
     }
 
-    private function writeBibXML($timeline){
+    function writeBibXML($timeline){
         $messages=$this->requestTwitterStatuses($timeline);
-        if($timeline!=self::$SEARCH) {
-          $XML=new SimpleXMLElement($messages);
-          if($XML[0]->error){
-              $file_log=fopen(WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."Error.log", "w");
-              fwrite($file_log, date("Y-m-d H:i:s")."\n".$messages);
-              fclose($file_log);
-          }
-          else{
-              $file=fopen(WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."cache.xml", "w");
-              fwrite($file, $messages);
-              fclose($file);
-          }
-        }
-        else {
-            $file=fopen(WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."cache.xml", "w");
-            fwrite($file, $messages);
-            fclose($file);
-        }
+		if (!$messages) return false; 
+		
+        $file=fopen(WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."cache.xml", "w");
+        fwrite($file, $messages);
+        fclose($file);
+        
         $file_date=fopen(WP_PLUGIN_DIR . '/wordpress-twitter/cache/'.$this->instance_name."date.dat", "w");
         fwrite($file_date, time());
         fclose($file_date);
         return 1;
     }
 
-    private function requestTwitterStatuses($timeline) {
+    function requestTwitterStatuses($timeline) {
         $string_timeline="";
-		$xml="";
-        if($timeline==self::$FRIENDS_TIMELINE){ $string_timeline = $this -> tweet_statuses . "friends_timeline/" . $this -> username . '.xml?count=20'; }
-        else if($timeline==self::$USER_TIMELINE){ $string_timeline = $this -> tweet_statuses . "user_timeline/" . $this -> username . '.xml?count=20';  }
-		else if($timeline==self::$SEARCH) { $string_timeline = $this -> search_tweets . $this->string_to_search;  }	
+		//var $xml;
+        if($timeline==$this->FRIENDS_TIMELINE){ $string_timeline = $this -> tweet_statuses . "friends_timeline/" . $this -> username . '.json?count='.$this->bibt_options['bib_numtweets'];}
+        else if($timeline==$this->USER_TIMELINE){ $string_timeline = $this -> tweet_statuses . "user_timeline/" . $this -> username . '.json?count='.$this->bibt_options['bib_numtweets'];}
+		else if($timeline==$this->SEARCH) { $string_timeline = $this -> search_tweets . $this->string_to_search . '&rpp='.$this->bibt_options['bib_numtweets'];  }	
 		if(function_exists('curl_init')){
 			$handler_curl = curl_init();
 			curl_setopt($handler_curl, CURLOPT_URL, $string_timeline);
@@ -247,9 +258,9 @@ class bibtweets{
 			curl_close($handler_curl);
 			unset($handler_curl);
 		}
-	else{
-		$xml = file_get_contents($string_timeline);
-	}
+		else{
+			$xml = file_get_contents($string_timeline);
+		}
         return $xml;
     }
 	
@@ -266,8 +277,10 @@ class bibtweets{
 				$upd_options['bib_pwd'] = $_POST['bib_pwd'];
 				$upd_options['bib_width']= $_POST['bib_width'];
 				$upd_options['bib_height']= $_POST['bib_height'];
+                $upd_options['bib_followme']= $_POST['bib_followme'];				
 				$upd_options['bib_time_interval']= $_POST['bib_time_interval'];
 				$upd_options['bib_style']= $_POST['bib_style'];
+				$upd_options['bib_numtweets']= $_POST['bib_numtweets'];
 				$upd_options['bib_timeline']= $_POST['bib_timeline'];
 				$upd_options['bib_search']= $_POST['bib_search'];
 				
@@ -312,7 +325,7 @@ class bibtweets{
 </a>
 </td>
 <td>
-<textarea cols="27" rows="1" name="bib_user"><?php echo stripcslashes($this->bibt_options['bib_user']); ?></textarea>
+<textarea cols="16" rows="1" name="bib_user"><?php echo stripcslashes($this->bibt_options['bib_user']); ?></textarea>
 <div style="max-width:500px; text-align:left; display:none" id="bib_user_tip">
 <?php
 _e('Enter your Twitter User Name.', 'bibtweets');
@@ -338,11 +351,11 @@ _e('Enter your Twitter Password.', 'bibtweets');
 <tr>
 <th scope="row" style="text-align:right; vertical-align:top;">
 <a style="cursor:pointer;" title="<?php _e('Click for Help!', 'bibtweets')?>" onclick="toggleVisibility('bib_width_tip');">
-<?php _e('Enter the width of the Tweets widget:', 'bibtweets')?>
+<?php _e('Enter the width of the Tweets widget(in pixels):', 'bibtweets')?>
 </a>
 </td>
 <td>
-<textarea cols="27" rows="1" name="bib_width"><?php echo stripcslashes($this->bibt_options['bib_width']); ?></textarea>
+<textarea cols="16" rows="1" name="bib_width"><?php echo stripcslashes($this->bibt_options['bib_width']); ?></textarea>
 <div style="max-width:500px; text-align:left; display:none" id="bib_width_tip">
 <?php
 _e('Enter the width of the Tweets widget', 'bibtweets');
@@ -353,14 +366,30 @@ _e('Enter the width of the Tweets widget', 'bibtweets');
 <tr>
 <th scope="row" style="text-align:right; vertical-align:top;">
 <a style="cursor:pointer;" title="<?php _e('Click for Help!', 'bibtweets')?>" onclick="toggleVisibility('bib_height_tip');">
-<?php _e('Enter the height of the Tweets widget:', 'bibtweets')?>
+<?php _e('Enter the height of the Tweets widget(in pixels):', 'bibtweets')?>
 </a>
 </td>
 <td>
-<textarea cols="27" rows="1" name="bib_height"><?php echo stripcslashes($this->bibt_options['bib_height']); ?></textarea>
+<textarea cols="16" rows="1" name="bib_height"><?php echo stripcslashes($this->bibt_options['bib_height']); ?></textarea>
 <div style="max-width:500px; text-align:left; display:none" id="bib_height_tip">
 <?php
 _e('Enter the height of the Tweets widget', 'bibtweets');
+ ?>
+</div>
+</td>
+</tr>
+
+<tr>
+<th scope="row" style="text-align:right; vertical-align:top;">
+<a style="cursor:pointer;" title="<?php _e('Click for Help!', 'bibtweets')?>" onclick="toggleVisibility('bib_followme_tip');">
+<?php _e('Show "Fllow me on twitter" link:', 'bibtweets')?>
+</a>
+</td>
+<td>
+<input type="checkbox" name="bib_followme" <?php if (stripcslashes($this->bibt_options['bib_followme'])) echo "checked=\"1\""; ?>/>
+<div style="max-width:500px; text-align:left; display:none" id="bib_followme_tip">
+<?php
+_e("Choose this option to show Follow me on Twitter link in the widget", 'bibtweets');
  ?>
 </div>
 </td>
@@ -373,7 +402,7 @@ _e('Enter the height of the Tweets widget', 'bibtweets');
 </a>
 </td>
 <td>
-<textarea cols="27" rows="1" name="bib_time_interval"><?php echo stripcslashes($this->bibt_options['bib_time_interval']); ?></textarea>
+<textarea cols="16" rows="1" name="bib_time_interval"><?php echo stripcslashes($this->bibt_options['bib_time_interval']); ?></textarea>
 <div style="max-width:500px; text-align:left; display:none" id="bib_time_interval_tip">
 <?php
 _e('Enter the time interval to refresh tweets in Tweets widget (in seconds)', 'bibtweets');
@@ -389,10 +418,26 @@ _e('Enter the time interval to refresh tweets in Tweets widget (in seconds)', 'b
 </a>
 </td>
 <td>
-<select style="width:240px;" name="bib_style"><?php foreach ($this->styles as $style) { ?><option<?php if ( stripcslashes($this->bibt_options['bib_style']) == $style) { echo ' selected="selected"'; } elseif (stripcslashes($this->bibt_options['bib_style']) ==="" && $this->defaultStyle == $style) { echo ' selected="selected"'; } ?>><?php echo $style; ?></option><?php } ?></select>
+<select style="width:80px;" name="bib_style"><?php foreach ($this->styles as $style) { ?><option<?php if ( stripcslashes($this->bibt_options['bib_style']) == $style) { echo ' selected="selected"'; } elseif (stripcslashes($this->bibt_options['bib_style']) ==="" && $this->defaultStyle == $style) { echo ' selected="selected"'; } ?>><?php echo $style; ?></option><?php } ?></select>
 <div style="max-width:500px; text-align:left; display:none" id="bib_style_tip">
 <?php
 _e('Choose the style for the Tweets widget', 'bibtweets');
+ ?>
+</div>
+</td>
+</tr>
+
+<tr>
+<th scope="row" style="text-align:right; vertical-align:top;">
+<a style="cursor:pointer;" title="<?php _e('Click for Help!', 'bibtweets')?>" onclick="toggleVisibility('bib_numtweets_tip');">
+<?php _e('Choose the number of tweets to show:', 'bibtweets')?>
+</a>
+</td>
+<td>
+<select style="width:80px;" name="bib_numtweets" id="bib_numtweets"><?php for ( $numtweets = 1; $numtweets <= 20; ++$numtweets ) { ?><option<?php if ( stripcslashes($this->bibt_options['bib_numtweets']) == $numtweets) { echo ' selected="selected"'; } elseif (stripcslashes($this->bibt_options['bib_numtweets']) ==="" && $this->dfltnumtweets == $numtweets) { echo ' selected="selected"'; } ?>><?php echo $numtweets; ?></option><?php } ?></select>
+<div style="max-width:500px; text-align:left; display:none" id="bib_numtweets_tip">
+<?php
+_e('Choose the number of tweets to show in the Tweets widget', 'bibtweets');
  ?>
 </div>
 </td>
@@ -405,7 +450,7 @@ _e('Choose the style for the Tweets widget', 'bibtweets');
 </a>
 </td>
 <td>
-<select style="width:240px;" name="bib_timeline" id="bib_timeline" onchange="toggleSearch('bib_timeline');"><?php foreach ($this->timelines as $timeline) { ?><option<?php if ( stripcslashes($this->bibt_options['bib_timeline']) == $timeline) { echo ' selected="selected"'; } elseif (stripcslashes($this->bibt_options['bib_timeline']) ==="" && $this->dflttimeline == $timeline) { echo ' selected="selected"'; } ?>><?php echo $timeline; ?></option><?php } ?></select>
+<select style="width:80px;" name="bib_timeline" id="bib_timeline"><?php foreach ($this->timelines as $timeline) { ?><option<?php if ( stripcslashes($this->bibt_options['bib_timeline']) == $timeline) { echo ' selected="selected"'; } elseif (stripcslashes($this->bibt_options['bib_timeline']) ==="" && $this->dflttimeline == $timeline) { echo ' selected="selected"'; } ?>><?php echo $timeline; ?></option><?php } ?></select>
 <div style="max-width:500px; text-align:left; display:none" id="bib_timeline_tip">
 <?php
 _e('Choose the timeline for the Tweets widget', 'bibtweets');
@@ -419,7 +464,7 @@ _e('Choose the timeline for the Tweets widget', 'bibtweets');
 <?php _e('Specify the search keyword if you choose "search" as the timeline:', 'bibtweets')?>
 </td>
 <td>
-<textarea cols="27" rows="1" name="bib_search" id="bib_search"><?php echo stripcslashes($this->bibt_options['bib_search']); ?></textarea>
+<textarea cols="16" rows="1" name="bib_search" id="bib_search"><?php echo stripcslashes($this->bibt_options['bib_search']); ?></textarea>
 </td>
 </tr>
 </div>
@@ -441,8 +486,10 @@ $bibt_options = array(
 		'bib_pwd' => null,
 		'bib_width' => 400,
 		'bib_height' => 265,
+		'bib_followme' => 1,
 		'bib_time_interval' => 60,
 		'bib_style' => 'blue',
+		'bib_numtweets' => 20,
 		'bib_timeline' => 'user',
 		'bib_search' => 'wordpress'		
 	);	
