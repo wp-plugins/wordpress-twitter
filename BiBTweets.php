@@ -3,7 +3,7 @@
 Plugin Name: Wordpress Twitter
 Plugin URI: http://indiafascinates.com/wordpress/wordpress-twitter-plugin/
 Description:  A wonderful tweets widget to show your timeline, friends' timeline or tweets on any keywords
-Version: 1.4
+Version: 1.4.1
 Author: India Fascinates (Suhas), Rajesh (BestIndianBloggers Dot Com)
 Author URI: http://indiafascinates.com/
 */
@@ -49,7 +49,7 @@ class bibtweets{
 	var $followme = 1;
     var $bib_time_interval=60;
 	
-    var $version = "1.4";
+    var $version = "1.4.1";
     var $USER_TIMELINE = "user";
     var $FRIENDS_TIMELINE = "friends";
 	var $SEARCH = "search";

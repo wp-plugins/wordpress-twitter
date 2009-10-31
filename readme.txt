@@ -2,7 +2,7 @@
 Contributors: India Fascinates (Suhas), Rajesh (BestIndianBloggers.com)
 Tags: Twitter, Wordpress Twitter, WP Twitter, Wordpress Twitter
 Requires at least: 1.5
-Tested up to: 2.8.4
+Tested up to: 2.8.5
 Stable tag: trunk
 
 Wordpress Twitter plugin adds a beautiful Tweets widget to your wordpress blog.You can show your twitter timeline or your friends' timeline or even display tweets on a particular keyword!!! The widget comes in three different themes - blue, green and red!!!
@@ -61,3 +61,6 @@ Please read these **[FAQs](http://indiafascinates.com/wordpress/wordpress-twitte
 *  Added option to show or hide "Follow me on twitter" link
 *  Added option to to specify the number of tweets to be displayed
 *  Fixed other bugs
+
+= 1.4.1 =
+*  Compatible with Wordpress 2.8.5
